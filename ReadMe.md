@@ -292,10 +292,88 @@ sudo mount -t nfs -o rw,nosuid <NFS-Server-Private-IP-Address>:/mnt/apps /var/ww
 sudo mount -t nfs -o rw,nosuid 172.31.33.253:/mnt/apps /var/www/
 
 ```
+3. Verify that NFS was mounted successfully
+```
+ df -h
+```
+Make sure that the changes will persist on Web Server after reboot:
 
-3. 
+```
+sudo vi /etc/fstab
+```
+add following line
+![image](https://github.com/user-attachments/assets/2418eed6-8d74-4a5c-837c-e5ef773e757f)
 
-Create in MySQL a new admin user with username: myuser and password: password:
+4. Install Remi's repository, Apache and PHP
+
+```
+sudo yum install httpd -y
+sudo systemctl enable httpd.service
+sudo systemctl start httpd.service
+sudo dnf install https://dl.fedoraproject.org/pub/epel/epel-release-latest-8.noarch.rpm
+sudo dnf install dnf-utils http://rpms.remirepo.net/enterprise/remi-release-8.rpm
+sudo dnf module reset php
+sudo dnf module enable php:remi-7.4
+sudo dnf install php php-opcache php-gd php-curl php-mysqlnd
+sudo systemctl start php-fpm
+sudo systemctl enable php-fpm
+setsebool -P httpd_execmem 1
+```
+Repeat steps 1-5 for another 2 Web Servers.
+
+5. Verify NFS Mount and Apache Setup:
+     Verify that Apache files and directories are available on the Web Server in /var/www and also on the NFS server in /mnt/apps. If you see the same files - it means NFS is mounted correctly.
+
+```
+cd /var/www
+```
+You can try to create a new file.
+```
+sudo touch test.txt
+```
+![image](https://github.com/user-attachments/assets/faa0ad8d-506f-4524-b09f-24f22c5b74f4)
+
+We can see the text.txt file created inside our nfs server /mnt/apps directory. So they are communicating perfectly.
+![image](https://github.com/user-attachments/assets/8abd4b44-32f5-462a-b948-acaa791c29da)
+
+6. Fork the tooling source code from Darey.io Github Account to your Github account. Download git.
+
+```
+sudo yum install git -y
+git clone https://github.com/ksal1235/tooling.git
+```
+Clone the repository you forked the project into
+
+```
+git clone https://github.com/ksal1235/tooling.git
+```
+![image](https://github.com/user-attachments/assets/cb1da55f-70e8-4989-a000-b96677804b93)
+
+8. Deploy the tooling website's code to the Webserver. Ensure that the html folder from the repository is deployed to /var/www/html
+
+          Note 1: Do not forget to open TCP port 80 on the Web Server.
+          Note 2: If you encounter 403 Error - check permissions to your /var/www/html folder and also disable SELinux sudo setenforce 0 To make this change permanent - open following config file
+
+Disable SELinux
+```
+sudo setenforce 0
+sudo vi /etc/sysconfig/selinux
+```
+
+and set SELINUX=disabled
+![image](https://github.com/user-attachments/assets/b029bfae-e640-443f-b88f-55b81a799f4b)
+
+Then restrt httpd.
+
+```
+sudo systemctl restart httpd
+sudo systemctl status httpd
+```
+9. Update the website's configuration to connect to the database (in /var/www/html/functions.php file). Apply tooling-db.sql script to your database using this command.
+![image](https://github.com/user-attachments/assets/b8736d18-7bbd-47ba-b0cd-de318b08a9bc)
+
+
+10. Create in MySQL a new admin user with username: myuser and password: password:
 
 Creating user and assignning the Required All Permission 
 ```
@@ -305,10 +383,6 @@ FLUSH PRIVILEGES;
 
 ```
 ![image](https://github.com/user-attachments/assets/9af39059-eff8-4d1e-bcaa-92bd529afdc0)
-
-
-
-
 
 Use databases;
 ```
@@ -331,15 +405,11 @@ status TINYINT(1)
 ```
 INSERT INTO 'users' ('id', 'username', 'password', 'email', 'user_type', 'status') VALUES -> (1, 'myuser', '5f4dcc3b5aa765d61d8327deb882cf99', 'user@mail.com', 'admin', '1');
 ```
-
-
-
 Open the website in your browser http://Web-Server-Public-IP-Addressor Public-DNS-Name/index.php and make sure you can login into the website with your user and password.
 ```
 http://3.109.139.187/login.php
 ```
 ![image](https://github.com/user-attachments/assets/c5329c03-f8e4-42c4-aab7-6c3d85f152e0)
-
 
 Login with Username and Password:
 ![image](https://github.com/user-attachments/assets/438845c1-c379-4f8d-ac5b-16b31ca842b6)
