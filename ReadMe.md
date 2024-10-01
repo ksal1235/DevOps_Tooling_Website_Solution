@@ -294,3 +294,53 @@ sudo mount -t nfs -o rw,nosuid 172.31.33.253:/mnt/apps /var/www/
 ```
 
 3. 
+
+Create in MySQL a new admin user with username: myuser and password: password:
+
+Creating user and assignning the Required All Permission 
+```
+CREATE USER 'myuser'@'172.31.32.52' IDENTIFIED BY 'password';
+GRANT ALL PRIVILEGES ON *.* TO 'myuser'@'172.31.32.52' WITH GRANT OPTION;
+FLUSH PRIVILEGES;
+
+```
+![image](https://github.com/user-attachments/assets/9af39059-eff8-4d1e-bcaa-92bd529afdc0)
+
+
+
+
+
+Use databases;
+```
+USE tooling
+```
+
+Creating the table
+````
+CREATE TABLE users (
+id INT PRIMARY KEY,
+username VARCHAR(50),
+password VARCHAR(100),
+email VARCHAR(100),
+user_type VARCHAR(20),
+status TINYINT(1)
+     );
+
+````
+
+```
+INSERT INTO 'users' ('id', 'username', 'password', 'email', 'user_type', 'status') VALUES -> (1, 'myuser', '5f4dcc3b5aa765d61d8327deb882cf99', 'user@mail.com', 'admin', '1');
+```
+
+
+
+Open the website in your browser http://Web-Server-Public-IP-Addressor Public-DNS-Name/index.php and make sure you can login into the website with your user and password.
+```
+http://3.109.139.187/login.php
+```
+![image](https://github.com/user-attachments/assets/c5329c03-f8e4-42c4-aab7-6c3d85f152e0)
+
+
+Login with Username and Password:
+![image](https://github.com/user-attachments/assets/438845c1-c379-4f8d-ac5b-16b31ca842b6)
+
